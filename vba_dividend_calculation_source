@@ -1,0 +1,55 @@
+Function dividendTaxUK2324(totalDividendGross As Double, otherIncomeGross As Double) As Double
+   'Declare the variables
+  
+  Const BASIC_BAND_UPPER_LIMIT = 37700
+Const HIGHER_BAND_UPPER_LIMIT = 125140
+Const PERSONAL_TAX_ALLOWANCE = 12570
+Const DIVIDEND_TAX_RATE_BASIC = 0.0875
+Const DIVIDEND_TAX_RATE_HIGHER = 0.3375
+Const DIVIDEND_TAX_RATE_ADDITIONAL = 0.3935
+Const INCOME_TAX_RATE_BASIC = 0.2
+Const INCOME_TAX_RATE_HIGHER = 0.4
+Const INCOME_TAX_RATE_ADDITIONAL = 0.45
+Const PTA_DIMINISH_FROM = 100000
+Const DIVIDEND_ALLOWANCE = 1000
+
+'Calculate the unused PTA
+Dim unusedPTA As Double
+unusedPTA = PERSONAL_TAX_ALLOWANCE - WorksheetFunction.Max((((otherIncomeGross + totalDividendGross) - PTA_DIMINISH_FROM) / 2), 0)
+
+'Amount of tax in basic band ignoring dividend allowance
+Dim term1 As Double
+term1 = (WorksheetFunction.Max(WorksheetFunction.Min(otherIncomeGross + totalDividendGross, BASIC_BAND_UPPER_LIMIT + WorksheetFunction.Max(unusedPTA, 0)) - _
+WorksheetFunction.Max(otherIncomeGross, WorksheetFunction.Max(unusedPTA, 0)), 0) * DIVIDEND_TAX_RATE_BASIC)
+
+'Amount of tax in higher rate band ignoring dividend allowance
+Dim term2 As Double
+term2 = (WorksheetFunction.Max(WorksheetFunction.Min(otherIncomeGross + totalDividendGross, HIGHER_BAND_UPPER_LIMIT) - WorksheetFunction.Max(otherIncomeGross, BASIC_BAND_UPPER_LIMIT + WorksheetFunction.Max(PERSONAL_TAX_ALLOWANCE - _
+WorksheetFunction.Max((((otherIncomeGross + totalDividendGross) - PTA_DIMINISH_FROM) / 2), 0), 0)), 0) * DIVIDEND_TAX_RATE_HIGHER)
+
+'Amount of tax in additional rqte  ignoring dividend allowance
+Dim term3 As Double
+term3 = (WorksheetFunction.Max(otherIncomeGross + totalDividendGross - WorksheetFunction.Max(otherIncomeGross, HIGHER_BAND_UPPER_LIMIT), 0) * DIVIDEND_TAX_RATE_ADDITIONAL)
+
+'Corrections fordividend allowance
+Dim rebate1 As Double
+rebate1 = -(WorksheetFunction.Max(WorksheetFunction.Min(otherIncomeGross + WorksheetFunction.Min(DIVIDEND_ALLOWANCE, totalDividendGross), BASIC_BAND_UPPER_LIMIT + WorksheetFunction.Max(PERSONAL_TAX_ALLOWANCE - _
+WorksheetFunction.Max((((otherIncomeGross + WorksheetFunction.Min(DIVIDEND_ALLOWANCE, totalDividendGross)) - PTA_DIMINISH_FROM) / 2), 0), 0)) - WorksheetFunction.Max(otherIncomeGross, WorksheetFunction.Max(PERSONAL_TAX_ALLOWANCE - _
+WorksheetFunction.Max((((otherIncomeGross + WorksheetFunction.Min(DIVIDEND_ALLOWANCE, totalDividendGross)) - PTA_DIMINISH_FROM) / 2), 0), 0)), 0) * DIVIDEND_TAX_RATE_BASIC)
+
+Dim rebate2 As Double
+rebate2 = -(WorksheetFunction.Max(WorksheetFunction.Min(otherIncomeGross + WorksheetFunction.Min(DIVIDEND_ALLOWANCE, totalDividendGross), HIGHER_BAND_UPPER_LIMIT) - WorksheetFunction.Max(otherIncomeGross, BASIC_BAND_UPPER_LIMIT + _
+WorksheetFunction.Max(PERSONAL_TAX_ALLOWANCE - WorksheetFunction.Max((((otherIncomeGross + WorksheetFunction.Min(DIVIDEND_ALLOWANCE, totalDividendGross)) - PTA_DIMINISH_FROM) / 2), 0), 0)), 0) * DIVIDEND_TAX_RATE_HIGHER)
+
+Dim rebate3 As Double
+rebate3 = -(WorksheetFunction.Max(otherIncomeGross + WorksheetFunction.Min(DIVIDEND_ALLOWANCE, totalDividendGross) - WorksheetFunction.Max(otherIncomeGross, HIGHER_BAND_UPPER_LIMIT), 0) * DIVIDEND_TAX_RATE_ADDITIONAL)
+
+Dim rebate4 As Double
+rebate4 = -(WorksheetFunction.Min(WorksheetFunction.Min(WorksheetFunction.Max(WorksheetFunction.Min(12570, otherIncomeGross + DIVIDEND_ALLOWANCE) - otherIncomeGross, 0), 1000), _
+WorksheetFunction.Max(WorksheetFunction.Min(otherIncomeGross + totalDividendGross, BASIC_BAND_UPPER_LIMIT + WorksheetFunction.Max(unusedPTA, 0)) - _
+WorksheetFunction.Max(otherIncomeGross, WorksheetFunction.Max(unusedPTA, 0)), 0)) * DIVIDEND_TAX_RATE_BASIC)
+
+
+dividendTaxUK2324 = term1 + term2 + term3 + rebate1 + rebate2 + rebate3 + rebate4
+
+End Function
