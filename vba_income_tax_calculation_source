@@ -1,0 +1,27 @@
+Function incomeTaxUK2324(totalIncomeGross As Double, totalDividendGross As Double) As Double
+   'Declare the variables
+  
+  Const BASIC_BAND_UPPER_LIMIT = 37700
+Const HIGHER_BAND_UPPER_LIMIT = 125140
+Const PERSONAL_TAX_ALLOWANCE = 12570
+Const DIVIDEND_TAX_RATE_BASIC = 0.0875
+Const DIVIDEND_TAX_RATE_HIGHER = 0.3375
+Const DIVIDEND_TAX_RATE_ADDITIONAL = 0.3935
+Const INCOME_TAX_RATE_BASIC = 0.2
+Const INCOME_TAX_RATE_HIGHER = 0.4
+Const INCOME_TAX_RATE_ADDITIONAL = 0.45
+Const PTA_DIMINISH_FROM = 100000
+Const DIVIDEND_ALLOWANCE = 1000
+
+Dim unusedPTA As Double
+unusedPTA = PERSONAL_TAX_ALLOWANCE - WorksheetFunction.Max((((totalIncomeGross + totalDividendGross) - PTA_DIMINISH_FROM) / 2), 0)
+
+Dim incomeTax As Double
+incomeTax = (INCOME_TAX_RATE_BASIC * WorksheetFunction.Max(totalIncomeGross - WorksheetFunction.Max(unusedPTA, 0), 0)) _
++ ((INCOME_TAX_RATE_HIGHER - INCOME_TAX_RATE_BASIC) * WorksheetFunction.Max(totalIncomeGross - _
+(BASIC_BAND_UPPER_LIMIT + WorksheetFunction.Max(unusedPTA, 0)), 0)) + (INCOME_TAX_RATE_BASIC * WorksheetFunction.Max(totalIncomeGross - (HIGHER_BAND_UPPER_LIMIT - (2 * WorksheetFunction.Max(unusedPTA, 0))), 0)) - ((INCOME_TAX_RATE_BASIC + _
+INCOME_TAX_RATE_HIGHER - INCOME_TAX_RATE_ADDITIONAL) * WorksheetFunction.Max(totalIncomeGross - HIGHER_BAND_UPPER_LIMIT, 0))
+
+incomeTaxUK2324 = incomeTax
+
+End Function
